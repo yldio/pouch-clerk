@@ -1,0 +1,43 @@
+{
+  "name": "pouch-clerk",
+  "version": "0.0.1",
+  "description": "PouchDB worker reacting to document changes",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "node --harmony node_modules/istanbul/lib/cli.js cover -- lab -vl && istanbul check-coverage",
+    "style": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pgte/pouch-clerk.git"
+  },
+  "keywords": [
+    "pouchdb",
+    "pouch",
+    "worker",
+    "changes",
+    "changes",
+    "feed"
+  ],
+  "author": "pgte",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pgte/pouch-clerk/issues"
+  },
+  "homepage": "https://github.com/pgte/pouch-clerk#readme",
+  "dependencies": {
+    "code": "^2.0.1",
+    "inherits": "^2.0.1",
+    "istanbul": "^0.4.1",
+    "lab": "^8.0.0",
+    "xtend": "^4.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^1.10.3",
+    "pre-commit": "^1.1.2"
+  },
+  "pre-commit": [
+    "style",
+    "test"
+  ]
+}
