@@ -119,11 +119,13 @@ describe('clerk', function() {
       lastSeq = change.seq;
       expectations.shift()(change.doc);
       if (! expectations.length) {
-        expect(hadError).to.equal(true);
-        changes.removeListener('change', onChange);
-        changes.cancel();
-        clerk.states.removeAllListeners();
-        done();
+        setTimeout(function() {
+          expect(hadError).to.equal(true);
+          changes.removeListener('change', onChange);
+          changes.cancel();
+          clerk.states.removeAllListeners();
+          done();
+        }, 100);
       }
     }
   });
@@ -149,10 +151,52 @@ describe('clerk', function() {
     expect(function() {
       clerk.states.on('start', function() {});
     }).to.throw('tried to register more than one handler for state start');
+    clerk.states.removeAllListeners();
     done();
   });
 
-  it('doesnt call action when the state in the change is not the latest');
+  it('clerk can callback without new state, inducing no change', function(done) {
+
+    clerk.states.on('start', function(doc, callback) {
+      callback();
+    });
+
+    var expectations = [
+      function(doc) {
+        expect(doc.a).to.equal(3);
+      }
+    ];
+
+    var changes = db.changes({
+      live: true,
+      include_docs: true,
+      since: lastSeq + 1,
+    });
+
+    changes.on('change', onChange);
+
+    db.post({ a: 3 }, function(err, doc) {
+      expect(err).to.be.null();
+    });
+
+    function onChange(change) {
+      lastSeq = change.seq;
+      var expectation = expectations.shift();
+      if (expectation) {
+        expectation(change.doc);
+      } else {
+        throw new Error('too many changes detected');
+      }
+      if (! expectations.length) {
+        setTimeout(function() {
+          changes.removeListener('change', onChange);
+          changes.cancel();
+          clerk.states.removeAllListeners();
+          done();
+        }, 500);
+      }
+    }
+  });
 
   it('handles conflicting updates graciously');
 
