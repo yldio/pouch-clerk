@@ -144,9 +144,17 @@ describe('clerk', function() {
     });
   });
 
-  it('doesnt allow two listeners for the same state');
+  it('doesnt allow two listeners for the same state', function(done) {
+    clerk.states.on('start', function() {});
+    expect(function() {
+      clerk.states.on('start', function() {});
+    }).to.throw('tried to register more than one handler for state start');
+    done();
+  });
 
   it('doesnt call action when the state in the change is not the latest');
+
+  it('handles conflicting updates graciously');
 
   it('can be stopped', function(done) {
     clerk.stop();
