@@ -27,6 +27,7 @@
   "homepage": "https://github.com/pgte/pouch-clerk#readme",
   "dependencies": {
     "code": "^2.0.1",
+    "debug": "^2.2.0",
     "inherits": "^2.0.1",
     "istanbul": "^0.4.1",
     "lab": "^8.0.0",
@@ -34,6 +35,8 @@
   },
   "devDependencies": {
     "eslint": "^1.10.3",
+    "memdown": "^1.1.0",
+    "pouchdb": "^5.1.0",
     "pre-commit": "^1.1.2"
   },
   "pre-commit": [

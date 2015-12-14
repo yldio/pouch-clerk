@@ -38,6 +38,15 @@ clerk.on('error', function(err) {
 });
 ```
 
+### Define an `error` state handler:
+
+```js
+clerk.states.on('error', function(doc, callback) {
+  // you can recover a doc from error here
+  console.log('document is on error state. Error:', doc.clerk_state.lastError);
+});
+```
+
 ### Define state entry handlers:
 
 ```js
@@ -85,10 +94,7 @@ clerk.stop();
 
 ## Error handling
 
-The clerk object will emit `error` events on the following circumstances:
-
-* The next state is undefined or equal to the previous state
-* Can't think of anything else, really...
+The clerk object will emit `error` events when there is an unrecoverable error when saving document changes.
 
 # License
 
