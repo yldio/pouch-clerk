@@ -119,12 +119,29 @@ describe('clerk', function() {
       lastSeq = change.seq;
       expectations.shift()(change.doc);
       if (! expectations.length) {
+        expect(hadError).to.equal(true);
         changes.removeListener('change', onChange);
         changes.cancel();
-        expect(hadError).to.equal(true);
+        clerk.states.removeAllListeners();
         done();
       }
     }
+  });
+
+  it('doesnt allow to call back with same state as before', function(done) {
+    clerk.once('error', function(err) {
+      expect(err.message).to.equal('same state as previous: start');
+      clerk.states.removeAllListeners();
+      done();
+    });
+
+    clerk.states.on('start', function(doc, callback) {
+      callback(null, 'start');
+    });
+
+    db.post({ a: 2 }, function(err, doc) {
+      expect(err).to.be.null();
+    });
   });
 
   it('doesnt allow two listeners for the same state');
