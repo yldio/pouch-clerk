@@ -22,7 +22,7 @@ describe('clerk', function() {
   var transitions = {};
 
   it('can be created', function(done) {
-    clerk = new Clerk({
+    clerk = Clerk({
       transitions: transitions
     });
     done();
@@ -92,7 +92,23 @@ describe('clerk', function() {
     db.put({_id: 'id4', beep: 'boop'});
   });
 
+  it('can have no handler', function(done) {
+    transitions.start = function(doc, next) {
+      next(null, 'does not exist');
+      done();
+    };
+    db.put({_id: 'id5', beep: 'boop'});
+  });
+
   it('can be stopped', function(done) {
+    clerk.stop(done);
+  });
+
+  it('can wait a bit', function(done) {
+    timers.setTimeout(done, 5e2);
+  });
+
+  it('can be stopped again', function(done) {
     clerk.stop(done);
   });
 });

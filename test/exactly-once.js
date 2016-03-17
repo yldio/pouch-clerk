@@ -16,7 +16,7 @@ var MemPouchDB = PouchDB.defaults({
 
 var Clerk = require('../');
 
-describe('clerk', function() {
+describe('exactly once clerk', function() {
   var transitions = {};
   var clerk = new Clerk({
     transitions: transitions
@@ -70,12 +70,11 @@ describe('clerk', function() {
   it('I get the unhandled call', function(done) {
     transitions.state1 = function(doc, next) {
       delete transitions.state1;
-      next();
+      next(null, 'state1');
       done();
     }
     clerk.add(db);
   });
-
 });
 
 function fail() {
