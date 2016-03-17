@@ -22,79 +22,120 @@ $ npm install pouch-clerk --save
 ```js
 var Clerk = require('pouch-clerk');
 
+var transitions = {
+  // document defining state transition handlers
+};
+
 var options = {
-  initialState: 'created' // defaults to `start`
-  reconnectMaxTimeoutMS: 3000 // defaults to 3000 ms
+  initialState: 'created', // defaults to `start`
+  reconnectMaxTimeoutMS: 3000, // defaults to 3000 ms
+  transitions: transitions,
 };
 
 var clerk = Clerk(options);
 ```
 
-### Define a clerk error handler:
+### The state transition handlers
+
+The `options.transitions` should contain an object with a key for each state.
+The value for each state should be a handler function, like this:
 
 ```js
+var transitions = {
+  'created': function(doc, next) {
+    // called when the document enters the "created" state
+    // do something
+    somethingAsynchronous(function(err, result) {
+      if (err) {
+        doc.error(err);
+      } else {
+        doc.result = result;
+        next(null, 'waiting for driver'); // jump into next state
+      }
+    });
+  },
+
+  'waiting for driver': function(doc, next) {
+    // ...
+  }
+```
+
+
+## Error handling
+
+The error handling strategy depends on the type of error happening.
+
+### User-land errors
+
+If an error occurs while you're processing a state transition, you should call the `next` callback with that error as the first argument:
+
+
+```javascript
+var transitions = {
+  'waiting for driver': function(doc, next) {
+    somethingAsynchronous(function(err) {
+      if (err) return next(err);
+      /// ...
+    });
+  }
+};
+```
+
+This will make the document transition into the `error` state.
+
+> You should define an error state handler (if you don't that error will be handled as an internal error — see the next section about internal errors).
+
+```javascript
+var transitions = {
+  'error': function(err, doc, next) {
+    // you can recover from error:
+    next(null, 'some next state');
+  }
+}
+```
+
+### Internal errors
+
+Internal errors can occurr when saving document changes. You can listen for those errors on the clerk object:
+
+```javascript
 clerk.on('error', function(err) {
-  console.log('clerk error:', err.message);
+  
 });
 ```
 
-### Define an `error` state handler:
+(if you don't, an uncaught exception will be thrown);
 
-```js
-clerk.states.on('error', function(doc, callback) {
-  // you can recover a doc from error here
-  console.log('document is on error state. Error:', doc.clerk_state.lastError);
-});
-```
 
-### Define state entry handlers:
+### Using databases
 
-```js
-// react to a document that entered the `created` state:
-clerk.states.on('created', function(doc, callback) {
-  // change document
-  doc.counter = doc.counter + 1;
-
-  // do something asynchronous:
-
-  somethingAsynchronous(function(err, result) {
-    if(err) {
-      callback(err); // next document state is "error"
-    } else {
-      doc.result = result;
-
-      // callback with the next state is:
-      callback(null, 'resulted');
-    }
-  });
-});
-
-// react to a document that entered the `resulted` state:
-clerk.states.on('resulted', function(doc, callback) {
-  // etc...
-});
-```
-
-### Clerk starts reacting to database changes:
+A clerk can react to one or more databases. During runtime you just add or remove a database:
 
 ```js
 var PouchDB = require('pouchdb');
 var db = new PouchDB('somedatabase');
 
-clerk.reactTo(db);
+clerk.databases.add(db);
 ```
 
+```js
+clerk.databases.remove(db);
+```
+
+#### Name databases
+
+You can also remove by database name:
+
+```js
+clerk.databases.add(db, 'mydb');
+clerk.databases.remove('mydb');
+```
 
 ### Stop clerk
 
 ```js
 clerk.stop();
 ```
-
-
-## Error handling
-
-The clerk object will emit `error` events when there is an unrecoverable error when saving document changes.
 
 # License
 

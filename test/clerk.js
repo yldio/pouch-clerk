@@ -116,6 +116,7 @@ describe('clerk', function() {
     });
 
     function onChange(change) {
+      console.log('change:', change);
       lastSeq = change.seq;
       expectations.shift()(change.doc);
       if (! expectations.length) {
@@ -137,6 +138,7 @@ describe('clerk', function() {
       done();
     });
 
+    clerk.states.removeAllListeners();
     clerk.states.on('start', function(doc, callback) {
       callback(null, 'start');
     });
