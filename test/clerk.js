@@ -59,6 +59,34 @@ describe('clerk', function() {
     db.put({_id: 'id2', beep: 'boop'});
   });
 
+  it('can handle a failed handler, emitting globally', function(done) {
+    clerk.once('error', function(err) {
+      expect(err.message).to.equal('Unhandled user error: ouch');
+      delete transitions.start;
+      done();
+    });
+    transitions.start = function(doc, next) {
+      next(new Error('ouch'));
+    };
+    db.put({_id: 'id3', beep: 'boop'});
+  });
+
+  it('can handle a failed handler, activating handler', function(done) {
+    transitions.error = function(err, doc, next) {
+      expect(err.message).to.equal('ouch');
+      expect(err.when).to.be.a.string();
+      expect(doc.beep).to.equal('boop');
+      delete transitions.start;
+      delete transitions.error;
+      next();
+      done();
+    };
+    transitions.start = function(doc, next) {
+      next(new Error('ouch'));
+    };
+    db.put({_id: 'id4', beep: 'boop'});
+  });
+
   it('can be stopped', function(done) {
     clerk.stop(done);
   });
