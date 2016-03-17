@@ -69,6 +69,31 @@ var transitions = {
 ```
 
 
+## Adding and removing databases
+
+A clerk can react to one or more databases. During runtime you just add or remove a database:
+
+```js
+var PouchDB = require('pouchdb');
+var db = new PouchDB('somedatabase');
+
+clerk.add(db);
+```
+
+```js
+clerk.remove(db);
+```
+
+#### Name databases
+
+You can also remove by database name:
+
+```js
+clerk.add(db, 'mydb');
+clerk.remove('mydb');
+```
+
+
 ## Error handling
 
 The error handling strategy depends on the type of error happening.
@@ -114,30 +139,6 @@ clerk.on('error', function(err) {
 
 (if you don't, an uncaught exception will be thrown);
 
-
-### Using databases
-
-A clerk can react to one or more databases. During runtime you just add or remove a database:
-
-```js
-var PouchDB = require('pouchdb');
-var db = new PouchDB('somedatabase');
-
-clerk.add(db);
-```
-
-```js
-clerk.remove(db);
-```
-
-#### Name databases
-
-You can also remove by database name:
-
-```js
-clerk.add(db, 'mydb');
-clerk.remove('mydb');
-```
 
 ### Stop clerk
 
