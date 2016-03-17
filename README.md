@@ -27,7 +27,7 @@ var transitions = {
 };
 
 var options = {
-  initialState: 'created', // defaults to `start`
+  initialState: 'start', // defaults to `start`
   reconnectMaxTimeoutMS: 3000, // defaults to 3000 ms
   transitions: transitions,
 };
@@ -42,9 +42,17 @@ The value for each state should be a handler function, like this:
 
 ```js
 var transitions = {
-  'created': function(doc, next) {
-    // called when the document enters the "created" state
-    // do something
+  'start': function(doc, next) {
+    // ...
+  }
+}
+```
+
+Example:
+
+```javascript
+var transitions = {
+  'start': function(doc, next) {
     somethingAsynchronous(function(err, result) {
       if (err) {
         doc.error(err);
@@ -134,7 +142,7 @@ clerk.remove('mydb');
 ### Stop clerk
 
 ```js
-clerk.stop();
+clerk.stop(callback);
 ```
 
 # License
