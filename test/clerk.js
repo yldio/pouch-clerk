@@ -8,6 +8,7 @@ var it = lab.it;
 var Code = require('code');
 var expect = Code.expect;
 
+var timers = require('timers');
 var PouchDB = require('pouchdb');
 var MemPouchDB = PouchDB.defaults({
   db: require('memdown'),
@@ -41,7 +42,7 @@ describe('clerk', function() {
       next();
       done();
     };
-    db.put({_id: 'id1', beep: 'boop'});
+    db.put({_id: 'id1', beep: 'boop'}, ensureNoError);
   });
 
   it('can handle a state transition', function(done) {
@@ -56,7 +57,7 @@ describe('clerk', function() {
       doc.boop = 'beep';
       next(null, 'state2');
     };
-    db.put({_id: 'id2', beep: 'boop'});
+    db.put({_id: 'id2', beep: 'boop'}, ensureNoError);
   });
 
   it('can handle a failed handler, emitting globally', function(done) {
@@ -68,18 +69,22 @@ describe('clerk', function() {
     transitions.start = function(doc, next) {
       next(new Error('ouch'));
     };
-    db.put({_id: 'id3', beep: 'boop'});
+    db.put({_id: 'id3', beep: 'boop'}, ensureNoError);
   });
 
-  it('can handle a failed handler, activating handler', function(done) {
+  it('can handle a failed handler, activating error handler', function(done) {
+    transitions.recovered = function(doc, next) {
+      delete transitions.start;
+      delete transitions.error;
+      delete transitions.recovered;
+      next();
+      done();
+    }
     transitions.error = function(err, doc, next) {
       expect(err.message).to.equal('ouch');
       expect(err.when).to.be.a.string();
       expect(doc.beep).to.equal('boop');
-      delete transitions.start;
-      delete transitions.error;
-      next();
-      done();
+      next(null, 'recovered');
     };
     transitions.start = function(doc, next) {
       next(new Error('ouch'));
@@ -91,3 +96,10 @@ describe('clerk', function() {
     clerk.stop(done);
   });
 });
+
+
+function ensureNoError(err) {
+  if (err) {
+    throw err;
+  }
+}
