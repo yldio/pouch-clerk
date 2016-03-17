@@ -115,11 +115,11 @@ A clerk can react to one or more databases. During runtime you just add or remov
 var PouchDB = require('pouchdb');
 var db = new PouchDB('somedatabase');
 
-clerk.databases.add(db);
+clerk.add(db);
 ```
 
 ```js
-clerk.databases.remove(db);
+clerk.remove(db);
 ```
 
 #### Name databases
@@ -127,8 +127,8 @@ clerk.databases.remove(db);
 You can also remove by database name:
 
 ```js
-clerk.databases.add(db, 'mydb');
-clerk.databases.remove('mydb');
+clerk.add(db, 'mydb');
+clerk.remove('mydb');
 ```
 
 ### Stop clerk
