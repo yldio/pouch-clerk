@@ -44,6 +44,21 @@ describe('clerk', function() {
     db.put({_id: 'id1', beep: 'boop'});
   });
 
+  it('can handle a state transition', function(done) {
+    transitions.state2 = function(doc, next) {
+      expect(doc.boop).to.equal('beep');
+      delete transitions.start;
+      delete transitions.state2;
+      next();
+      done();
+    }
+    transitions.start = function(doc, next) {
+      doc.boop = 'beep';
+      next(null, 'state2');
+    };
+    db.put({_id: 'id2', beep: 'boop'});
+  });
+
   it('can be stopped', function(done) {
     clerk.stop(done);
   });
