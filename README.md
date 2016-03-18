@@ -1,5 +1,7 @@
 # pouch-clerk
 
+[![Build Status](https://travis-ci.org/pgte/pouch-clerk.svg?branch=master)](https://travis-ci.org/pgte/pouch-clerk)
+
 PouchDB worker reacting to document changes.
 
 Each document has a state. A clerk listens to changes in one or more PouchDB databases and react to document state changes.
