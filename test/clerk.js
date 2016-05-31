@@ -34,6 +34,12 @@ describe('clerk', function() {
     done();
   });
 
+  it('knows it has the new database', function(done) {
+    expect(clerk.has('db2')).to.equal(true);
+    expect(clerk.has('does not exist')).to.equal(false);
+    done();
+  });
+
   it('can handle fresh document', function(done) {
     transitions.start = function(doc, next) {
       expect(doc._id).to.equal('id1');
