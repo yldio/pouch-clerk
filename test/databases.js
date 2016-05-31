@@ -37,6 +37,12 @@ describe('databases', function() {
     db.put({_id: 'A', a: 1});
   });
 
+  it('knows if has a database by name', function(done) {
+    expect(databases.has('db1')).to.equal(true);
+    expect(databases.has('does not exist')).to.equal(false);
+    done();
+  });
+
   it('can remove db by name', function(done) {
     databases.remove('db1');
     done();

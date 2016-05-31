@@ -95,6 +95,14 @@ clerk.add(db, 'mydb');
 clerk.remove('mydb');
 ```
 
+You can also find out if a named database exists:
+
+```js
+if (!clerk.has('mydb')) {
+  clerk.add(db, 'mydb');
+}
+```
+
 
 ## Error handling
 
