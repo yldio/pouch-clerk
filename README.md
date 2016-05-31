@@ -70,6 +70,17 @@ var transitions = {
   }
 ```
 
+## Reentering the same state
+
+You can force reentry on the same state (watch out for infinite loops), by passing a `true` as third argument to the `next` callback:
+
+```js
+var transitions = {
+  'waiting for driver': function(doc, next) {
+    next(null, 'waiting for driver', true);
+  }
+}
+```
 
 ## Adding and removing databases
 
