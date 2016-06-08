@@ -37,6 +37,13 @@ var options = {
 var clerk = Clerk(options);
 ```
 
+### Options
+
+* `initialState` (string): the state to give new documents with no state yet
+* `finalState` (string or string array): the end state (or states, if you pass an array)
+* `reconnectMaxTimeout` (number): the maximum number of miliseconds to wait before trying to (re)connect
+* `transitions` (object): the state transition handlers. Object where the keys are the state names and the values are functions.
+
 ### The state transition handlers
 
 The `options.transitions` should contain an object with a key for each state.
