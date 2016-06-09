@@ -23,7 +23,8 @@ describe('async updater', function() {
       start: function(doc) {
         expect(doc.id).to.equal('A');
         done();
-      }
+      },
+      finish() {}
     };
 
     var clerk = new Clerk({
@@ -41,6 +42,7 @@ describe('async updater', function() {
       start: function(doc) {
         startCount ++;
       },
+      finish() {},
     };
 
     var clerk = new Clerk({

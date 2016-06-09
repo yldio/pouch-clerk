@@ -21,6 +21,15 @@ describe('clerk', function() {
   var db;
   var transitions = {};
 
+  it('canot be created with bad options', function(done) {
+    expect(function() {
+      clerk = Clerk({
+        transitions: 'hey'
+      });
+    }).to.throw("child \"transitions\" fails because [\"transitions\" must be an object]");
+    done();
+  });
+
   it('can be created', function(done) {
     clerk = Clerk({
       transitions: transitions
