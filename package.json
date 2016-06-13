@@ -1,6 +1,6 @@
 {
   "name": "pouch-clerk",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "PouchDB worker reacting to document changes",
   "main": "lib/index.js",
   "scripts": {
