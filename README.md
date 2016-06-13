@@ -30,6 +30,7 @@ var transitions = {
 
 var options = {
   initialState: 'start', // defaults to `start`
+  finalState: 'finished', // defaults to `finish`
   reconnectMaxTimeoutMS: 3000, // defaults to 3000 ms
   transitions: transitions,
 };
@@ -41,8 +42,9 @@ var clerk = Clerk(options);
 
 * `initialState` (string): the state to give new documents with no state yet
 * `finalState` (string or string array): the end state (or states, if you pass an array)
-* `reconnectMaxTimeout` (number): the maximum number of miliseconds to wait before trying to (re)connect
+* `reconnectMaxTimeoutMS` (number): the maximum number of miliseconds to wait before trying to (re)connect
 * `transitions` (object): the state transition handlers. Object where the keys are the state names and the values are functions.
+* `asyncUpdaters`: an array of functions that start and stop async updaters. See [Async Updaters section](#async-updaters).
 
 ### The state transition handlers
 
@@ -121,6 +123,75 @@ if (!clerk.has('mydb')) {
 }
 ```
 
+## Async updaters
+
+You can push async updates into documents like this:
+
+```javascript
+var asyncUpdater = {
+  start: function(doc) {
+    this._interval = setInterval(function() {
+      doc.merge(function(currentDoc) {
+        currentDoc.counter = currentDoc.counter + 1;
+      })
+    }, 1000);
+  },
+  stop: function() {
+    clearInterval(this._interval);
+  }  
+}
+
+var options = {
+  asyncUpdaters: [asyncUpdater]  
+};
+
+var clerk = Clerk(options);
+```
+
+(Each document creates an async updater instance, which you can reference by `this` inside the `start` or `stop` methods).
+
+### Async updater API
+
+The Async Updater `start` method gets a `doc` instance for each document that is being handled. Using this document you can:
+
+#### get the ID of the document
+
+```js
+function start(doc) {
+  console.log(doc._id);
+}
+```
+
+#### get the latest document version:
+
+```js
+function start(doc) {
+  doc.get(function(err, latestDoc) {
+    // ...
+  })
+}
+```
+
+#### update the document:
+
+```js
+function start(doc) {
+  doc.put(doc, function(err) {
+
+  });
+}
+```
+
+
+#### merge some attributes into the latest version of the document:
+
+```js
+function start(doc) {
+  doc.merge(function(latest) {
+    latest.counter ++;
+  });
+}
+```
 
 ## Error handling
 
