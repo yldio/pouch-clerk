@@ -140,8 +140,50 @@ describe('async updater', function() {
     setTimeout(function() {
       clerk.stop(function() {
         expect(stopped).to.equal(true);
-        clerk.stop(done);
+        db.get('D', function(err, doc) {
+          if (err) throw err;
+          expect(doc.a).to.equal(9);
+          clerk.stop(done);
+        })
       });
     }, 500);
   });
+
+  it('can merge a document', function(done) {
+    var stopped = false;
+    var asyncUpdater = {
+      start: function(doc) {
+        this._interval = setInterval(function() {
+          doc.merge(function(doc) {
+            doc.a ++;
+          });
+        }, 50);
+      },
+      stop: function(doc) {
+        stopped = true;
+        clearInterval(this._interval);
+      },
+    };
+
+    var clerk = new Clerk({
+      asyncUpdaters: asyncUpdater
+    });
+    const db = new MemPouchDB('async-updates-test-db-4');
+
+    clerk.add(db);
+    db.put({_id: 'E', clerk_state: {state: 'start'}, a: 0}, function(err) {
+      if (err) throw err;
+    });
+    setTimeout(function() {
+      clerk.stop(function() {
+        expect(stopped).to.equal(true);
+        db.get('E', function(err, doc) {
+          if (err) throw err;
+          expect(doc.a).to.equal(9);
+          clerk.stop(done);
+        });
+      });
+    }, 500);
+  });
+
 });

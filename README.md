@@ -189,6 +189,8 @@ function start(doc) {
 function start(doc) {
   doc.merge(function(latest) {
     latest.counter ++;
+  }, function(err) {
+    // handle err
   });
 }
 ```
