@@ -179,7 +179,7 @@ describe('async updater', function() {
         expect(stopped).to.equal(true);
         db.get('E', function(err, doc) {
           if (err) throw err;
-          expect(doc.a).to.equal(9);
+          expect(doc.a >= 8).to.equal(true);
           clerk.stop(done);
         });
       });
