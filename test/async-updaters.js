@@ -22,9 +22,8 @@ describe('async updater', function() {
     var asyncUpdater = {
       start: function(doc) {
         expect(doc.id).to.equal('A');
-        done();
+        clerk.stop(done);
       },
-      finish() {}
     };
 
     var clerk = new Clerk({
@@ -42,7 +41,6 @@ describe('async updater', function() {
       start: function(doc) {
         startCount ++;
       },
-      finish() {},
     };
 
     var clerk = new Clerk({
@@ -58,7 +56,7 @@ describe('async updater', function() {
           if (err) throw err;
           setTimeout(function() {
             expect(startCount).to.equal(1);
-            done();
+            clerk.stop(done);
           }, 100);
         })
       }, 100);
@@ -68,9 +66,9 @@ describe('async updater', function() {
   it('finishes updater when final state is reached', function(done) {
     var asyncUpdater = {
       start: function() {},
-      finish: function(doc) {
+      stop: function(doc) {
         expect(doc.id).to.equal('C');
-        done();
+        clerk.stop(done);
       }
     };
 
@@ -88,10 +86,10 @@ describe('async updater', function() {
     });
   });
 
-  it('doesnt finish if hasn\'t started', function(done) {
+  it('doesn\'t finish if hasn\'t started', function(done) {
     var asyncUpdater = {
       start: function() {},
-      finish: function(doc) {
+      stop: function(doc) {
         throw new Error('should not finish');
       },
     };
@@ -106,7 +104,44 @@ describe('async updater', function() {
       if (err) throw err;
     });
     setTimeout(function() {
-      done();
+      clerk.stop(done);
     }, 200);
-  })
+  });
+
+  it('can get and update documents', function(done) {
+    var stopped = false;
+    var asyncUpdater = {
+      start: function(doc) {
+        this._interval = setInterval(function() {
+          doc.get(function(err, latestDoc) {
+            if (err) throw err;
+            latestDoc.a ++;
+            doc.put(latestDoc, function(err) {
+              if (err) throw err;
+            })
+          });
+        }, 50);
+      },
+      stop: function(doc) {
+        stopped = true;
+        clearInterval(this._interval);
+      },
+    };
+
+    var clerk = new Clerk({
+      asyncUpdaters: asyncUpdater
+    });
+    const db = new MemPouchDB('async-updates-test-db-4');
+
+    clerk.add(db);
+    db.put({_id: 'D', clerk_state: {state: 'start'}, a: 0}, function(err) {
+      if (err) throw err;
+    });
+    setTimeout(function() {
+      clerk.stop(function() {
+        expect(stopped).to.equal(true);
+        clerk.stop(done);
+      });
+    }, 500);
+  });
 });
